@@ -13,10 +13,11 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         final Intent intent = new Intent(this,MainActivity.class);
         setContentView(R.layout.activity_login);
-        Button  btnlogin = (Button)findViewById(R.id.btnLogin);
+        final Button  btnlogin = (Button)findViewById(R.id.btnLogin);
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+               // btnlogin.setBackgroundColor(getResources().getColor(R.color.cinzaazulclaro));
                 startActivity(intent);
 
             }
