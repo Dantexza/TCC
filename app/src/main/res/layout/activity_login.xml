@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:background="@drawable/whitebg"
     android:layout_height="match_parent"
+    android:background="@drawable/whitebg"
     tools:context=".LoginActivity">
 
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="101dp"
+        android:layout_width="0dp"
         android:layout_height="39dp"
         android:layout_marginEnd="48dp"
         android:layout_marginBottom="65dp"
@@ -19,7 +19,8 @@
         android:textColor="@color/cinzaazulclaro"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2"
+        app:layout_constraintVertical_bias="1.0" />
 
     <EditText
         android:id="@+id/login"
@@ -29,6 +30,7 @@
         android:background="@drawable/round"
         android:ems="10"
         android:hint="@string/Login"
+        android:text="mai"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.521"
@@ -40,23 +42,23 @@
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
+        android:background="@drawable/round"
         android:ems="10"
         android:hint="@string/pass"
-        android:background="@drawable/round"
-        android:inputType="textPersonName"
+        android:text="3r4re"
+        android:inputType="textPassword"
         app:layout_constraintStart_toStartOf="@+id/login"
         app:layout_constraintTop_toBottomOf="@+id/login" />
 
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="256dp"
-        android:layout_height="328dp"
+        android:layout_height="406dp"
         android:layout_marginStart="65dp"
-        android:layout_marginTop="26dp"
         android:layout_marginEnd="65dp"
-        android:layout_marginBottom="173dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogin"
+
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.48"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/dark" />
