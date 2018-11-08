@@ -5,7 +5,7 @@
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Log out</string>
+    <string name="action_settings">Sair</string>
     <string name="Login">Login</string>
     <string name="pass">Senha</string>
 
