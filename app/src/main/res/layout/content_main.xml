@@ -12,66 +12,65 @@
         android:id="@+id/user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_gravity="center_horizontal"
 
-        android:layout_marginEnd="12dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginStart="50dp"
+
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="50dp"
         android:background="@drawable/rounduser"
         android:elevation="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/textViewUser"
-        app:layout_constraintEnd_toEndOf="@+id/textViewUser"
-        app:layout_constraintTop_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/user" />
 
 
     <TextView
         android:id="@+id/textViewUser"
-        android:layout_width="300dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="342dp"
-        android:layout_marginBottom="137dp"
+        android:layout_width="match_parent"
+        android:layout_height="65dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
         android:background="@drawable/rounduser"
         android:elevation="8dp"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/floatingActionButton"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/user" />
 
     <TextView
         android:id="@+id/textViewOcupation"
-        android:layout_width="250dp"
+        android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="112dp"
         android:background="@drawable/rounduser"
         android:elevation="8dp"
+
         android:gravity="center"
         android:hint="ocupação"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.434"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user"
-        app:layout_constraintVertical_bias="0.557" />
+        app:layout_constraintTop_toBottomOf="@+id/textViewUser" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatingActionButton"
         android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:layout_marginStart="17dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        android:layout_height="55dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
         android:clickable="true"
-        android:focusable="true"
         android:elevation="8dp"
+        android:focusable="true"
         android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textViewOcupation"
-        app:layout_constraintTop_toBottomOf="@+id/textViewUser"
-        app:srcCompat="@android:drawable/ic_menu_rotate"
-        />
+        app:srcCompat="@android:drawable/ic_menu_rotate" />
 
 
 </android.support.constraint.ConstraintLayout>

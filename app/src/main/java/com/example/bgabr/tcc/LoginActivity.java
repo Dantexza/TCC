@@ -114,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
                         } catch (JSONException e) {
                             e.printStackTrace();
                             Toast.makeText(getApplicationContext(),
-                                    "Error: " + e.getMessage(),
+                                    "Login e senha inválidos",
                                     Toast.LENGTH_LONG).show();
 
                         }

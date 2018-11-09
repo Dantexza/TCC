@@ -20,10 +20,10 @@
 
             <ImageView
                 android:id="@+id/imageView5"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="135dp"
+                android:layout_height="45dp"
                 android:layout_gravity="center"
-                app:srcCompat="@drawable/logolight" />
+                app:srcCompat="@drawable/logo_horizontal" />
         </android.support.v7.widget.Toolbar>
 
 

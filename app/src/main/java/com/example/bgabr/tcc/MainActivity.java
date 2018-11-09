@@ -78,12 +78,17 @@ public class MainActivity extends AppCompatActivity
         }else if(!mNfcAdapter.isEnabled()){
             Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
             startActivity(intent);
-            Toast.makeText(this,"Ative NFC e Android Beam nas configurações antes de iniciar o aplicativo ao aplicativo",Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo",Toast.LENGTH_LONG).show();
         }
+        if(mNfcAdapter.isEnabled())
+        {
+        //Mensagem a ser mandada por nfc
         String nfcstring;
         NdefMessage message=create_RTD_TEXT_NdefMessage("Hello world");
         mNfcAdapter.setNdefPushMessage(message, this);
         Toast.makeText(this, "Aproxime o celular do terminal", Toast.LENGTH_SHORT).show();
+        }
+
 
 
     }
@@ -155,8 +160,15 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             processIntent(getIntent());
+
+            }
+            if((!mNfcAdapter.isEnabled())){
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                startActivity(intent);
+                Toast.makeText(this,"Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo",Toast.LENGTH_LONG).show();
+            }
         }
-    }
+
 
     void processIntent(Intent intent) {
 
