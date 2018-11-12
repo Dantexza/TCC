@@ -1,5 +1,6 @@
 package com.example.bgabr.tcc;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
@@ -36,7 +37,8 @@ public class MainActivity extends AppCompatActivity
     NfcAdapter mNfcAdapter;
     private TextView messageText;
     byte statusByte;
-    private String payload="";
+    private String payload = "";
+    HashMap<String, String> user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,35 +66,42 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         //Configuração textView
-        HashMap<String, String> user = session.getUserDetails();
+        user = session.getUserDetails();
         String lblnome = user.get(SessionManagement.KEY_LOGIN);
+        String sdf = user.get(SessionManagement.KEY_NOME);
         //String lblocupation = user.get(SessionManagement.);
-        nome.setText(lblnome);
+        nome.setText(sdf);
         //ocupation.setText(ocupation);
 
         //Configuração NFC
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
-            Toast.makeText(this,"Seu dispositivo não possui NFC",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Seu dispositivo não possui NFC", Toast.LENGTH_LONG).show();
             finish();
-        }else if(!mNfcAdapter.isEnabled()){
+        } else if (!mNfcAdapter.isEnabled()) {
             Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
             startActivity(intent);
-            Toast.makeText(this,"Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo",Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo", Toast.LENGTH_LONG).show();
         }
-        if(mNfcAdapter.isEnabled())
-        {
-        //Mensagem a ser mandada por nfc
-        String nfcstring;
-        NdefMessage message=create_RTD_TEXT_NdefMessage("Hello world");
-        mNfcAdapter.setNdefPushMessage(message, this);
-        Toast.makeText(this, "Aproxime o celular do terminal", Toast.LENGTH_SHORT).show();
+        if (mNfcAdapter.isEnabled()) {
+            //Mensagem a ser mandada por nfc
+            String nfcstring;
+            NdefMessage message = create_RTD_TEXT_NdefMessage("Hello world");
+            mNfcAdapter.setNdefPushMessage(message, this);
+            Toast.makeText(this, "Aproxime o celular do terminal", Toast.LENGTH_SHORT).show();
         }
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NdefMessage message = create_RTD_TEXT_NdefMessage("Hello world");
+                mNfcAdapter.setNdefPushMessage(message, MainActivity.this);
+                Toast.makeText(getApplicationContext(), "Aproxime o celular do terminal", Toast.LENGTH_SHORT).show();
 
+            }
+        });
 
 
     }
-
 
 
     @Override
@@ -109,9 +118,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        HashMap<String, String> user = session.getUserDetails();
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        Menu nav = navigationView.getMenu();
+        nav.findItem(R.id.nav_home).setChecked(true);
+        user = session.getUserDetails();
         TextView name = (TextView) findViewById(R.id.sidebarName);
-        String lblname=user.get(SessionManagement.KEY_LOGIN);
+        String lblname = user.get(SessionManagement.KEY_NOME);
         name.setText(lblname);
         return true;
     }
@@ -125,8 +137,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-         session.logoutUser();
-         finish();
+            session.logoutUser();
+            finish();
         }
 
         return super.onOptionsItemSelected(item);
@@ -139,17 +151,18 @@ public class MainActivity extends AppCompatActivity
         /// Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-             // Handle the camera action
+        if (id == R.id.nav_acess) {
+            Intent acesso = new Intent(getApplicationContext(), AcessoActivity.class);
+            startActivity(acesso);
+            finish();
 
-        } else if (id == R.id.nav_gallery) {
 
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_request) {
+            Intent req = new Intent(getApplicationContext(), RequestActivity.class);
+            startActivity(req);
+            finish();
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -161,41 +174,41 @@ public class MainActivity extends AppCompatActivity
         if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(getIntent().getAction())) {
             processIntent(getIntent());
 
-            }
-            if((!mNfcAdapter.isEnabled())){
-                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
-                startActivity(intent);
-                Toast.makeText(this,"Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo",Toast.LENGTH_LONG).show();
-            }
         }
+        if ((!mNfcAdapter.isEnabled())) {
+            Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+            startActivity(intent);
+            Toast.makeText(this, "Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo", Toast.LENGTH_LONG).show();
+        }
+    }
 
 
     void processIntent(Intent intent) {
 
 
         NdefMessage[] messages = getNdefMessages(getIntent());
-        for(int i=0;i<messages.length;i++){
-            for(int j=0;j<messages[0].getRecords().length;j++){
+        for (int i = 0; i < messages.length; i++) {
+            for (int j = 0; j < messages[0].getRecords().length; j++) {
                 NdefRecord record = messages[i].getRecords()[j];
-                statusByte=record.getPayload()[0];
-                int languageCodeLength= statusByte & 0x3F; //mask value in order to find language code length
-                int isUTF8=statusByte-languageCodeLength;
-                if(isUTF8==0x00){
-                    payload=new String(record.getPayload(),1+languageCodeLength,record.getPayload().length-1-languageCodeLength, Charset.forName("UTF-8"));
+                statusByte = record.getPayload()[0];
+                int languageCodeLength = statusByte & 0x3F; //mask value in order to find language code length
+                int isUTF8 = statusByte - languageCodeLength;
+                if (isUTF8 == 0x00) {
+                    payload = new String(record.getPayload(), 1 + languageCodeLength, record.getPayload().length - 1 - languageCodeLength, Charset.forName("UTF-8"));
+                } else if (isUTF8 == -0x80) {
+                    payload = new String(record.getPayload(), 1 + languageCodeLength, record.getPayload().length - 1 - languageCodeLength, Charset.forName("UTF-16"));
                 }
-                else if (isUTF8==-0x80){
-                    payload=new String(record.getPayload(),1+languageCodeLength,record.getPayload().length-1-languageCodeLength,Charset.forName("UTF-16"));
-                }
-                messageText.setText("Text received: "+ payload);
+                messageText.setText("Text received: " + payload);
             }
         }
     }
-    NdefMessage create_RTD_TEXT_NdefMessage(String inputText){
 
-        Locale locale= new Locale("en","US");
+    NdefMessage create_RTD_TEXT_NdefMessage(String inputText) {
+
+        Locale locale = new Locale("en", "US");
         byte[] langBytes = locale.getLanguage().getBytes(Charset.forName("US-ASCII"));
 
-        boolean encodeInUtf8=false;
+        boolean encodeInUtf8 = false;
         Charset utfEncoding = encodeInUtf8 ? Charset.forName("UTF-8") : Charset.forName("UTF-16");
         int utfBit = encodeInUtf8 ? 0 : (1 << 7);
         byte status = (byte) (utfBit + langBytes.length);
@@ -209,10 +222,11 @@ public class MainActivity extends AppCompatActivity
 
         NdefRecord textRecord = new NdefRecord(NdefRecord.TNF_WELL_KNOWN,
                 NdefRecord.RTD_TEXT, new byte[0], data);
-        NdefMessage message= new NdefMessage(new NdefRecord[] { textRecord});
+        NdefMessage message = new NdefMessage(new NdefRecord[]{textRecord});
         return message;
 
     }
+
     NdefMessage[] getNdefMessages(Intent intent) {
 
         NdefMessage[] msgs = null;
@@ -239,5 +253,5 @@ public class MainActivity extends AppCompatActivity
         }
 
         return msgs;
-}
+    }
 }

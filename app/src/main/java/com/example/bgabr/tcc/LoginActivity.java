@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String login = textLogin.getText().toString();
                                 String senha = textSenha.getText().toString();
                                 session.createLoginSession(login, senha);
-
+                                session.userdata("Bruno Gabriel da Silva","Developer");
                                     // Staring MainActivity
                                     Intent main = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(main);

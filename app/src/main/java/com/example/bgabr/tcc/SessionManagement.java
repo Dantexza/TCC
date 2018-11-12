@@ -32,6 +32,11 @@ public class SessionManagement {
     // Email address (make variable public to access from outside)
     public static final String KEY_SENHA = "senha";
 
+    //nome
+    public static final String KEY_NOME = "nome";
+
+    public static final String KEY_OCUPATION = "ocupação";
+
     // Constructor
     public SessionManagement(Context context){
         this._context = context;
@@ -53,6 +58,11 @@ public class SessionManagement {
         editor.putString(KEY_SENHA, senha);
 
         // commit changes
+        editor.commit();
+    }
+    public void userdata(String nome,String ocupation){
+        editor.putString(KEY_NOME,nome);
+        editor.putString(KEY_OCUPATION,ocupation);
         editor.commit();
     }
 
@@ -90,6 +100,8 @@ public class SessionManagement {
 
         // user email id
         user.put(KEY_SENHA, pref.getString(KEY_SENHA, null));
+        user.put(KEY_OCUPATION, pref.getString(KEY_OCUPATION, null));
+        user.put(KEY_NOME, pref.getString(KEY_NOME, null));
 
         // return user
         return user;

@@ -8,5 +8,13 @@
     <string name="action_settings">Sair</string>
     <string name="Login">Login</string>
     <string name="pass">Senha</string>
-
+    <string name="home">Início</string>
+    <string name="acessos">Acessos</string>
+    <string name="request">Solicitação de acesso</string>
+    <string name="predio">Prédio</string>
+    <string name="andar">Andar</string>
+    <string name="porta">Porta</string>
+    <string name="acesso">Acesso</string>
+    <string name="send">Enviar Solicitação</string>
+    <string name="justificativa">Justificativa</string>
 </resources>
