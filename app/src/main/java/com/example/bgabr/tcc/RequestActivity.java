@@ -109,9 +109,12 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
     }
     public void setSpinner (Integer[] list){
         Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
+        Spinner andar = (Spinner) findViewById(R.id.spinnerandar);
+        Spinner predio = (Spinner) findViewById(R.id.spinnerpredio);
         ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this,R.layout.snipper,list);
         porta.setAdapter(adapter);
-
+        andar.setAdapter(adapter);
+        predio.setAdapter(adapter);
 
 
 
