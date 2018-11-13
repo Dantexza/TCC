@@ -1,5 +1,6 @@
 package com.example.bgabr.tcc;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.NavigationView;
@@ -9,6 +10,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,14 +20,26 @@ import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
 public class AcessoActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     SessionManagement session;
 
-
+    private ProgressDialog pDialog;
     HashMap<String, String> user;
+    private static String TAG = MainActivity.class.getSimpleName();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,19 +57,22 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        for (int i = 0 ;i<15;i++){
-            addRows();
-        }
+        navigationView.setNavigationItemSelectedListener(this);
+
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Carregando...");
+        pDialog.setCancelable(false);
+        //
+        user = session.getUserDetails();
+        String lblnome = user.get(SessionManagement.KEY_LOGIN);
+        String JsonArray = "http://4acess.online/acessosUsuario.php?login="+lblnome;
+        makeJsonArrayRequest(JsonArray);//conexão com banco de dados
+
+
+
 
 
         Button request = (Button) findViewById(R.id.buttonRequest);
-
-        navigationView.setNavigationItemSelectedListener(this);
-
-
-
-
-
         request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -132,7 +149,9 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void addRows(){
+
+    //Método para adicição de linhas
+    public void addRows(String nPredio,String nAndar, String nPorta){
         TableLayout t2 =(TableLayout) findViewById(R.id.table2);
 
         TableRow.LayoutParams size = new TableRow.LayoutParams(1,55);
@@ -141,10 +160,10 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         tr_head.setId(View.generateViewId());
         tr_head.setPadding(0,0,0,20);
         tr_head.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-
+        //Variavel predio
         TextView predio = new TextView(this);
         predio.setId(View.generateViewId());
-        predio.setText("1");
+        predio.setText(nPredio);
         predio.setTextSize(20);
         //predio.setPadding(0,0,0,2);
         predio.setGravity(Gravity.CENTER);
@@ -155,10 +174,10 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         img1.setLayoutParams(size);
         img1.setPadding(30,0,0,0);
         tr_head.addView(img1);
-
+        //Variavel acesso
         TextView andar = new TextView(this);
         andar.setId(View.generateViewId());
-        andar.setText("1");
+        andar.setText(nAndar);
         andar.setTextSize(20);
         andar.setGravity(Gravity.CENTER);
         tr_head.addView(andar);
@@ -168,10 +187,10 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         img2.setLayoutParams(size);
         img2.setPadding(30,0,0,0);
         tr_head.addView(img2);
-
+        //Variavel porta
         TextView porta = new TextView(this);
         porta.setId(View.generateViewId());
-        porta.setText("21");
+        porta.setText(nPorta);
         porta.setTextSize(20);
         porta.setGravity(Gravity.CENTER);
         tr_head.addView(porta);
@@ -189,4 +208,62 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         t2.addView(tr_head);
 
     }
-}
+
+    private void makeJsonArrayRequest(String Array) {
+
+        showpDialog();
+
+        JsonArrayRequest req = new JsonArrayRequest(Array,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, response.toString());
+
+                        try {
+                            // Parsing json array response
+                            // loop through each json object
+
+
+                            for (int i = 0;i<response.length();i++) {
+                                JSONObject acesso = (JSONObject) response
+                                        .get(i);
+
+                                String predio = acesso.getString("predio");
+                                String andar = acesso.getString("andar");
+                                String porta = acesso.getString("porta");
+                                addRows(predio,andar,porta);
+
+
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),
+                                    "Error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+
+                        hidepDialog();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_SHORT).show();
+                hidepDialog();
+            }
+        });
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(req);
+    }
+    private void showpDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hidepDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
+    }}

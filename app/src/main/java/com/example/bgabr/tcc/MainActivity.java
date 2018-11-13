@@ -1,15 +1,18 @@
 package com.example.bgabr.tcc;
 
-import android.app.Activity;
+
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.text.Html;
+
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +29,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Locale;
@@ -38,23 +53,44 @@ public class MainActivity extends AppCompatActivity
     private TextView messageText;
     byte statusByte;
     private String payload = "";
+    //Dados da sessão
     HashMap<String, String> user;
 
+    private static String TAG = MainActivity.class.getSimpleName();
+
+
+    private ProgressDialog pDialog;
+    TextView nome,ocupation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Assets
-        TextView nome = (TextView) findViewById(R.id.textViewUser);
-        TextView ocupation = (TextView) findViewById(R.id.textViewOcupation);
+        //Configuração do Toast personalizado
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.toast,null);
+        TextView text = (TextView) layout.findViewById(R.id.textToast);
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+
+        //Texto do perfil
+        nome = (TextView) findViewById(R.id.textViewUser);
+        ocupation = (TextView) findViewById(R.id.textViewOcupation);
+
+        //Configuração da barra superior e barra de navegação
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        FloatingActionButton reload = (FloatingActionButton) findViewById(R.id.floatingActionButton);
+        final FloatingActionButton reload = (FloatingActionButton) findViewById(R.id.floatingActionButton);
 
-        //Recuperando sessão
-        session = new SessionManagement(getApplicationContext());
+        //caixa de dialogo
+        pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Carregando...");
+        pDialog.setCancelable(false);
+
+
         //Drawer
         setSupportActionBar(toolbar);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -62,18 +98,17 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-
         navigationView.setNavigationItemSelectedListener(this);
 
+        //Recuperando sessão
+                session = new SessionManagement(getApplicationContext());
         //Configuração textView
         user = session.getUserDetails();
         String lblnome = user.get(SessionManagement.KEY_LOGIN);
-        String sdf = user.get(SessionManagement.KEY_NOME);
-        //String lblocupation = user.get(SessionManagement.);
-        nome.setText(sdf);
-        //ocupation.setText(ocupation);
+        final String JsonArray = "http://4acess.online/acessosUsuario.php?login="+lblnome;
+        makeJsonArrayRequest(JsonArray);
 
-        //Configuração NFC
+        //Verificação se o celular possui NFC e se esta ativado
         mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (mNfcAdapter == null) {
             Toast.makeText(this, "Seu dispositivo não possui NFC", Toast.LENGTH_LONG).show();
@@ -83,20 +118,14 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             Toast.makeText(this, "Ative NFC e Android Beam nas configurações antes de iniciar  o asplicativo", Toast.LENGTH_LONG).show();
         }
-        if (mNfcAdapter.isEnabled()) {
-            //Mensagem a ser mandada por nfc
-            String nfcstring;
-            NdefMessage message = create_RTD_TEXT_NdefMessage("Hello world");
-            mNfcAdapter.setNdefPushMessage(message, this);
-            Toast.makeText(this, "Aproxime o celular do terminal", Toast.LENGTH_SHORT).show();
-        }
+        //Botão recarregar configuração do NFC
         reload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                NdefMessage message = create_RTD_TEXT_NdefMessage("Hello world");
-                mNfcAdapter.setNdefPushMessage(message, MainActivity.this);
-                Toast.makeText(getApplicationContext(), "Aproxime o celular do terminal", Toast.LENGTH_SHORT).show();
-
+                makeJsonArrayRequest(JsonArray);
+                YoYo.with(Techniques.Landing).duration(500).playOn(reload);
+                //YoYo.with(Techniques.ZoomIn).duration(200).playOn(findViewById(R.id.floatingActionButton));
+                showToast("Aproxime o celular do terminal");
             }
         });
 
@@ -227,6 +256,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //Método nfc
     NdefMessage[] getNdefMessages(Intent intent) {
 
         NdefMessage[] msgs = null;
@@ -253,5 +283,82 @@ public class MainActivity extends AppCompatActivity
         }
 
         return msgs;
+    }
+
+    public void showToast(String msg){
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.toast,null);
+        TextView text = (TextView) layout.findViewById(R.id.textToast);
+        Toast toast = new Toast(getApplicationContext());
+        toast.setGravity(Gravity.CENTER_VERTICAL, 0, 625);
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        text.setText(msg);
+        toast.show();
+
+    }
+
+    // Configuração do NFC e JSON
+   private void makeJsonArrayRequest(String Array) {
+
+        showpDialog();
+
+        JsonArrayRequest req = new JsonArrayRequest(Array,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, response.toString());
+
+                        try {
+                            JSONObject perfil = (JSONObject) response
+                                        .get(0);
+
+                                String name = perfil.getString("nome_completo");
+                                String ocup = perfil.getString("salt");
+
+                                nome.setText(name);
+                                ocupation.setText(ocup);
+
+                            if (mNfcAdapter.isEnabled()) {
+                                //Mensagem a ser mandada por nfc
+                                String lblnome = user.get(SessionManagement.KEY_LOGIN);
+                                NdefMessage message = create_RTD_TEXT_NdefMessage(lblnome);
+                                mNfcAdapter.setNdefPushMessage(message, MainActivity.this);
+                                showToast("Aproxime o celular do terminal");
+                            }
+
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(getApplicationContext(),
+                                    "Error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+
+                        hidepDialog();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                Toast.makeText(getApplicationContext(),
+                        error.getMessage(), Toast.LENGTH_SHORT).show();
+                hidepDialog();
+            }
+        });
+        AppController.getInstance().addToRequestQueue(req);
+    }
+
+    //Método da caixa de dialogo
+    private void showpDialog() {
+        if (!pDialog.isShowing())
+            pDialog.show();
+    }
+
+    private void hidepDialog() {
+        if (pDialog.isShowing())
+            pDialog.dismiss();
     }
 }

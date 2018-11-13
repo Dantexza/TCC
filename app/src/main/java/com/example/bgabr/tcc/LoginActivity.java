@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                                 String login = textLogin.getText().toString();
                                 String senha = textSenha.getText().toString();
                                 session.createLoginSession(login, senha);
-                                session.userdata("Bruno Gabriel da Silva","Developer");
+
                                     // Staring MainActivity
                                     Intent main = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(main);
@@ -119,7 +119,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         }
 
-                        hidepDialog();
+                       hidepDialog();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity {
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(),
                         error.getMessage(), Toast.LENGTH_SHORT).show();
-                hidepDialog();
+               hidepDialog();
             }
         });
 
