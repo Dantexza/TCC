@@ -165,7 +165,7 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
     }  // Configuração do NFC e JSON
     private void makeJsonArrayRequest(String Array) {
 
-        showpDialog();
+
 
         JsonArrayRequest req = new JsonArrayRequest(Array,
                 new Response.Listener<JSONArray>() {
@@ -177,8 +177,7 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
                             JSONObject perfil = (JSONObject) response
                                     .get(0);
 
-                            String name = perfil.getString("nome_completo");
-                            String ocup = perfil.getString("salt");
+
 
 
 
@@ -194,7 +193,7 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
                                     Toast.LENGTH_LONG).show();
                         }
 
-                        hidepDialog();
+
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -202,22 +201,13 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 Toast.makeText(getApplicationContext(),
                         error.getMessage(), Toast.LENGTH_SHORT).show();
-                hidepDialog();
+
             }
         });
         AppController.getInstance().addToRequestQueue(req);
     }
 
-    //Método da caixa de dialogo
-    private void showpDialog() {
-        if (!pDialog.isShowing())
-            pDialog.show();
-    }
-
-    private void hidepDialog() {
-        if (pDialog.isShowing())
-            pDialog.dismiss();
-    }
-}
 
 }
+
+
