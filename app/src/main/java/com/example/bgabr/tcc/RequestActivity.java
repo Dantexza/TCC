@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -32,8 +33,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collector;
 
 public class RequestActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     SessionManagement session;
@@ -76,6 +81,23 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Carregando...");
         pDialog.setCancelable(false);
+
+        //setSpinner(items,items,items);
+        final Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
+       // porta.setSelected(false);  // must
+        //porta.setSelection(0,true);  //must
+        porta.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(getApplicationContext(),porta.getItemAtPosition(position).toString(),Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
 
         makeRequest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,14 +172,16 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void setSpinner (Integer[] list){
+    public void setSpinner (Integer[] arrayPredio,Integer[] arrayAndar,Integer[] arrayPorta){
         Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
         Spinner andar = (Spinner) findViewById(R.id.spinnerandar);
         Spinner predio = (Spinner) findViewById(R.id.spinnerpredio);
-        ArrayAdapter<Integer> adapter = new ArrayAdapter<Integer>(this,R.layout.snipper,list);
-        porta.setAdapter(adapter);
-        andar.setAdapter(adapter);
-        predio.setAdapter(adapter);
+        ArrayAdapter<Integer> adapterPredio = new ArrayAdapter<Integer>(this,R.layout.snipper,arrayPredio);
+        ArrayAdapter<Integer> adapterAndar = new ArrayAdapter<Integer>(this,R.layout.snipper,arrayAndar);
+        ArrayAdapter<Integer> adapterPorta = new ArrayAdapter<Integer>(this,R.layout.snipper,arrayPorta);
+        porta.setAdapter(adapterPredio);
+        andar.setAdapter(adapterAndar);
+        predio.setAdapter(adapterPorta);
 
 
 
@@ -167,23 +191,40 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
 
 
 
+
         JsonArrayRequest req = new JsonArrayRequest(Array,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray response) {
                         Log.d(TAG, response.toString());
 
+
+
                         try {
-                            JSONObject perfil = (JSONObject) response
-                                    .get(0);
+                            Integer[] a = new Integer[10],b= new Integer[10],c= new Integer[10];
+                            for (int i = 0;i<response.length();i++) {
+                                JSONObject valor = (JSONObject) response
+                                        .get(i);
+
+                                int predio = valor.getInt("predio");
+                                int andar = valor.getInt("andar");
+                                int porta = valor.getInt("id");
+
+                               a[i]=predio;
+                               b[i]=andar;
+                               c[i]=porta;
+
+                            }
+                            Integer[] ax = arrRemove(a);
+                            Integer[] bx = arrRemove(b);
+                            Integer[] cx = arrRemove(c);
 
 
+                          //  Set<Integer> ax = new HashSet<Integer>(Arrays.asList(a));
+                           // Set<Integer> bx = new HashSet<Integer>(Arrays.asList(b));
+                          //  Set<Integer> cx = new HashSet<Integer>(Arrays.asList(c));
 
-
-
-
-
-
+                            setSpinner(ax,bx,cx);
 
 
                         } catch (JSONException e) {
@@ -207,7 +248,11 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         AppController.getInstance().addToRequestQueue(req);
     }
 
-
+    private static Integer[] arrRemove(Integer[] strArray) {
+        Set<Integer> set = new HashSet<Integer>();
+        set.addAll((List<Integer>) Arrays.asList(strArray));
+        return (Integer[]) set.toArray(new Integer[set.size()]);
+    }
 }
 
 

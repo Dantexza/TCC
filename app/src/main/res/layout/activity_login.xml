@@ -54,6 +54,7 @@
         android:id="@+id/btnLogin"
         android:layout_width="0dp"
         android:layout_height="39dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="35dp"
         android:background="@drawable/round"
@@ -61,7 +62,8 @@
         android:text="@string/Login"
         android:textColor="@color/cinzaazulclaro"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/pass" />
 
 
 </android.support.constraint.ConstraintLayout>
