@@ -81,6 +81,7 @@
                     style="@style/Base.Widget.AppCompat.DropDownItem.Spinner"
                     android:layout_width="118dp"
                     android:layout_height="35dp"
+                    android:focusableInTouchMode="true"
                     android:layout_alignParentStart="true"
                     android:layout_marginStart="3dp"
                     android:layout_marginLeft="1dp"

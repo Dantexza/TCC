@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,14 +40,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
-public class RequestActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class RequestActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener,AdapterView.OnItemSelectedListener {
     SessionManagement session;
     Integer[] items = new Integer[]{1,2,3,4};
 
     HashMap<String, String> user;
+    private int mGalleryCount=0;
+    private boolean initializedView = false;
+    //this counts how many Gallery's have been initialized
+    private int mGalleryInitializedCount=0;
 
-    private static String TAG = MainActivity.class.getSimpleName();
+    private static String TAG = RequestActivity.class.getSimpleName();
 
     private ProgressDialog pDialog;
 
@@ -82,22 +88,42 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         pDialog.setMessage("Carregando...");
         pDialog.setCancelable(false);
 
-        //setSpinner(items,items,items);
+
         final Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
        // porta.setSelected(false);  // must
-        //porta.setSelection(0,true);  //must
+        //porta.setSelection(0,true);  //mu
+
+        porta.setOnItemSelectedListener(this);
+
+
+
+
+
+       /* final boolean isSpinnerTouched = false;
+        porta.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+
         porta.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(getApplicationContext(),porta.getItemAtPosition(position).toString(),Toast.LENGTH_LONG).show();
+
+                    if (!isSpinnerTouched) {
+
+
+                    Toast.makeText(getApplicationContext(),porta.getItemAtPosition(position).toString(),Toast.LENGTH_LONG).show();
+                        return;
+                }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
             }
-        });
-
+        });*/
 
         makeRequest.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,13 +198,15 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-    public void setSpinner (Integer[] arrayPredio,Integer[] arrayAndar,Integer[] arrayPorta){
+    public void setSpinner (List<Object> arrayPredio,List<Object> arrayAndar,List<Object> arrayPorta){
         Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
         Spinner andar = (Spinner) findViewById(R.id.spinnerandar);
         Spinner predio = (Spinner) findViewById(R.id.spinnerpredio);
-        ArrayAdapter<Integer> adapterPredio = new ArrayAdapter<Integer>(this,R.layout.snipper,arrayPredio);
-        ArrayAdapter<Integer> adapterAndar = new ArrayAdapter<Integer>(this,R.layout.snipper,arrayAndar);
-        ArrayAdapter<Integer> adapterPorta = new ArrayAdapter<Integer>(this,R.layout.snipper,arrayPorta);
+        ArrayAdapter<Object> adapterPredio = new ArrayAdapter<Object>(this,R.layout.snipper,arrayPredio);
+        adapterPredio.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        ArrayAdapter<Object> adapterAndar = new ArrayAdapter<Object>(this,R.layout.snipper,arrayAndar);
+        ArrayAdapter<Object> adapterPorta = new ArrayAdapter<Object>(this,R.layout.snipper,arrayPorta);
         porta.setAdapter(adapterPredio);
         andar.setAdapter(adapterAndar);
         predio.setAdapter(adapterPorta);
@@ -189,9 +217,6 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
     }  // Configuração do NFC e JSON
     private void makeJsonArrayRequest(String Array) {
 
-
-
-
         JsonArrayRequest req = new JsonArrayRequest(Array,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -201,31 +226,25 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
 
 
                         try {
-                            Integer[] a = new Integer[10],b= new Integer[10],c= new Integer[10];
+                            List<Long> a = new  ArrayList<>();
+                            List<Long> b = new ArrayList<>();
+                            List<Long> c= new  ArrayList<>();
+
                             for (int i = 0;i<response.length();i++) {
                                 JSONObject valor = (JSONObject) response
                                         .get(i);
 
-                                int predio = valor.getInt("predio");
-                                int andar = valor.getInt("andar");
-                                int porta = valor.getInt("id");
-
-                               a[i]=predio;
-                               b[i]=andar;
-                               c[i]=porta;
+                                a.add(valor.getLong("predio"));
+                                b.add(valor.getLong("andar"));
+                                c.add(valor.getLong("id"));
 
                             }
-                            Integer[] ax = arrRemove(a);
-                            Integer[] bx = arrRemove(b);
-                            Integer[] cx = arrRemove(c);
 
+                            List<Object> predio = a.stream().distinct().collect(Collectors.toList());
+                            List<Object> andar = b.stream().distinct().collect(Collectors.toList());
+                            List<Object> id = c.stream().distinct().collect(Collectors.toList());
 
-                          //  Set<Integer> ax = new HashSet<Integer>(Arrays.asList(a));
-                           // Set<Integer> bx = new HashSet<Integer>(Arrays.asList(b));
-                          //  Set<Integer> cx = new HashSet<Integer>(Arrays.asList(c));
-
-                            setSpinner(ax,bx,cx);
-
+                            setSpinner(predio, andar, id);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -253,6 +272,33 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         set.addAll((List<Integer>) Arrays.asList(strArray));
         return (Integer[]) set.toArray(new Integer[set.size()]);
     }
+
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+    {
+
+        if (initializedView ==  false)
+        {Log.i(TAG, "selected item position = " + String.valueOf(position) );
+            initializedView = true;
+
+        }
+        else
+        {
+            //only detect selection events that are not done whilst initializing
+            Log.i(TAG, "selected item position = " + String.valueOf(position) );
+        }
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
 }
+
 
 
