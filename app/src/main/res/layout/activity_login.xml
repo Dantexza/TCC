@@ -29,7 +29,7 @@
         android:ems="10"
         android:hint="@string/Login"
         android:inputType="textPersonName"
-        android:text="mai"
+        android:text=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageViewLogo" />
@@ -59,7 +59,7 @@
         android:layout_marginBottom="35dp"
         android:background="@drawable/round"
         android:backgroundTint="@color/cinzaazulescuro"
-        android:text=""
+        android:text="@string/Login"
         android:textColor="@color/cinzaazulclaro"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
