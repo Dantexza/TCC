@@ -11,14 +11,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +70,7 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        final Button makeRequest = (Button) findViewById(R.id.button);
+        //final Button makeRequest = (Button) findViewById(R.id.button);
 
 
         session = new SessionManagement(getApplicationContext());
@@ -80,7 +85,7 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
 
         user = session.getUserDetails();
         String lblnome = user.get(SessionManagement.KEY_LOGIN);
-        final String JsonArray = "http://4acess.online/acessoUsuarioPortas.php?login="+lblnome;
+        final String JsonArray = "http://4acess.online/solicitacoesAcessos.php?login="+lblnome;
         makeJsonArrayRequest(JsonArray);
 
         //caixa de dialogo
@@ -89,48 +94,18 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         pDialog.setCancelable(false);
 
 
-        final Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
+       //final Spinner porta = (Spinner) findViewById(R.id.spinnerPorta);
        // porta.setSelected(false);  // must
         //porta.setSelection(0,true);  //mu
 
-        porta.setOnItemSelectedListener(this);
+      //  porta.setOnItemSelectedListener(this);
 
 
 
 
 
-       /* final boolean isSpinnerTouched = false;
-        porta.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-
-        porta.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                    if (!isSpinnerTouched) {
 
 
-                    Toast.makeText(getApplicationContext(),porta.getItemAtPosition(position).toString(),Toast.LENGTH_LONG).show();
-                        return;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });*/
-
-        makeRequest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                YoYo.with(Techniques.Landing).duration(500).playOn(makeRequest);
-            }
-        });
 
     }
 
@@ -155,8 +130,9 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         nav.findItem(R.id.nav_request).setChecked(true);
         user = session.getUserDetails();
         TextView name = (TextView) findViewById(R.id.sidebarName);
-        String lblname = user.get(SessionManagement.KEY_NOME);
-        name.setText(lblname);
+        TextView ocup = (TextView) findViewById(R.id.sidebarocup);
+        name.setText(user.get(SessionManagement.KEY_NOME));
+        ocup.setText(user.get(SessionManagement.KEY_OCUPATION));
         return true;
     }
 
@@ -209,12 +185,75 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
         ArrayAdapter<Object> adapterPorta = new ArrayAdapter<Object>(this,R.layout.snipper,arrayPorta);
         porta.setAdapter(adapterPredio);
         andar.setAdapter(adapterAndar);
-        predio.setAdapter(adapterPorta);
+        predio.setAdapter(adapterPorta);}
+
+
+        public void addRows(String data,String nPorta, String estado){
+            TableLayout treq =(TableLayout) findViewById(R.id.tablereq);
+
+            TableRow.LayoutParams size = new TableRow.LayoutParams(1,55);
+
+            TableRow tr_head = new TableRow(this);
+            tr_head.setId(View.generateViewId());
+            tr_head.setPadding(0,0,0,20);
+            tr_head.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+            //Variavel predio
+            TextView predio = new TextView(this);
+            predio.setId(View.generateViewId());
+            predio.setText(data);
+            predio.setWidth(80);
+            predio.setHeight(50);
+            predio.setTextSize(20);
+            //predio.setPadding(0,0,0,2);
+            predio.setGravity(Gravity.CENTER);
+            tr_head.addView(predio);
+
+            ImageView img1 = new ImageView(this);
+            img1.setImageResource(R.drawable.ic_column);
+            img1.setLayoutParams(size);
+            img1.setPadding(30,0,0,0);
+            tr_head.addView(img1);
+            //Variavel acesso
+            TextView andar = new TextView(this);
+            andar.setId(View.generateViewId());
+            andar.setText(nPorta);
+            andar.setTextSize(20);
+            andar.setGravity(Gravity.CENTER);
+            tr_head.addView(andar);
+
+            ImageView img2 = new ImageView(this);
+            img2.setImageResource(R.drawable.ic_column);
+            img2.setLayoutParams(size);
+            img2.setPadding(30,0,0,0);
+            tr_head.addView(img2);
+            //Variavel porta
+            TextView porta = new TextView(this);
+            porta.setId(View.generateViewId());
+            if(estado.equals("0")){
+                porta.setText("Em análise");
+            }else if(estado.equals("1")){
+                porta.setText("Aprovado");
+            }else{
+                porta.setText("Recusado");
+            }
+
+            porta.setWidth(60);
+            porta.setHeight(50);
+            porta.setTextSize(20);
+            porta.setGravity(Gravity.CENTER);
+            tr_head.addView(porta);
+
+
+            treq.addView(tr_head);
+
+    }
 
 
 
 
-    }  // Configuração do NFC e JSON
+
+
+      // Configuração do NFC e JSON
     private void makeJsonArrayRequest(String Array) {
 
         JsonArrayRequest req = new JsonArrayRequest(Array,
@@ -226,25 +265,22 @@ public class RequestActivity extends AppCompatActivity implements NavigationView
 
 
                         try {
-                            List<Long> a = new  ArrayList<>();
-                            List<Long> b = new ArrayList<>();
-                            List<Long> c= new  ArrayList<>();
+
 
                             for (int i = 0;i<response.length();i++) {
                                 JSONObject valor = (JSONObject) response
                                         .get(i);
+                                String data = valor.getString("data_solicitacao");
+                                String porta = valor.getString("porta");
+                                String status = valor.getString("status");
 
-                                a.add(valor.getLong("predio"));
-                                b.add(valor.getLong("andar"));
-                                c.add(valor.getLong("id"));
+
+                               addRows(data,porta,status);
+
+
+
 
                             }
-
-                            List<Object> predio = a.stream().distinct().collect(Collectors.toList());
-                            List<Object> andar = b.stream().distinct().collect(Collectors.toList());
-                            List<Object> id = c.stream().distinct().collect(Collectors.toList());
-
-                            setSpinner(predio, andar, id);
 
                         } catch (JSONException e) {
                             e.printStackTrace();

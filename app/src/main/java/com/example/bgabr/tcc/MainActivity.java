@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity
         //Configuração textView
         user = session.getUserDetails();
         String lblnome = user.get(SessionManagement.KEY_LOGIN);
-        final String JsonArray = "http://4acess.online/acessosUsuario.php?login="+lblnome;
+        final String JsonArray = "http://4acess.online/infoUsuario.php?login="+lblnome;
         makeJsonArrayRequest(JsonArray);
 
         //Verificação se o celular possui NFC e se esta ativado
@@ -152,8 +152,10 @@ public class MainActivity extends AppCompatActivity
         nav.findItem(R.id.nav_home).setChecked(true);
         user = session.getUserDetails();
         TextView name = (TextView) findViewById(R.id.sidebarName);
-        String lblname = user.get(SessionManagement.KEY_NOME);
-        name.setText(lblname);
+        TextView ocup = (TextView) findViewById(R.id.sidebarocup);
+        name.setText(user.get(SessionManagement.KEY_NOME));
+        ocup.setText(user.get(SessionManagement.KEY_OCUPATION));
+
         return true;
     }
 
@@ -314,10 +316,15 @@ public class MainActivity extends AppCompatActivity
                                         .get(0);
 
                                 String name = perfil.getString("nome_completo");
-                                String ocup = perfil.getString("salt");
+                                String ocup = perfil.getString("nome");
 
                                 nome.setText(name);
                                 ocupation.setText(ocup);
+                                session.userdata(name,ocup);
+                            TextView nameTxt = (TextView) findViewById(R.id.sidebarName);
+                            TextView ocuptxT = (TextView) findViewById(R.id.sidebarocup);
+                            nameTxt.setText(name);
+                            ocuptxT.setText(ocup);
 
                             if (mNfcAdapter.isEnabled()) {
                                 //Mensagem a ser mandada por nfc

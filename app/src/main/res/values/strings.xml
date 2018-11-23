@@ -16,5 +16,5 @@
     <string name="porta">Porta</string>
     <string name="acesso">Acesso</string>
     <string name="send">Enviar Solicitação</string>
-    <string name="justificativa">Justificativa</string>
+    <string name="justificativa">Solicitações</string>
 </resources>

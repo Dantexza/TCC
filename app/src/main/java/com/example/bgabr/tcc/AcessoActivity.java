@@ -105,7 +105,9 @@ public class AcessoActivity extends AppCompatActivity implements NavigationView.
         user = session.getUserDetails();
         TextView name = (TextView) findViewById(R.id.sidebarName);
         String lblname=user.get(SessionManagement.KEY_NOME);
-        name.setText(lblname);
+        TextView ocup = (TextView) findViewById(R.id.sidebarocup);
+        name.setText(user.get(SessionManagement.KEY_NOME));
+        ocup.setText(user.get(SessionManagement.KEY_OCUPATION));
         return true;
     }
 
